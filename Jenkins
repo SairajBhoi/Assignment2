@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout code from Git
-                git url: 'https://github.com/user/sample-app.git'
+                git url: 'https://github.com/SairajBhoi/Assignment2.git'
             }
         }
         
