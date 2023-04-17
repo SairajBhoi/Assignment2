@@ -2,56 +2,32 @@ pipeline {
     agent any
     
     stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git
+                git url: 'https://github.com/user/sample-app.git'
+            }
+        }
+        
         stage('Build') {
-            agent {
-                label 'master'
-            }
-    
             steps {
-                sh 'mvn clean compile'
+                // Build the application
+                sh './gradlew build'
             }
-         }
+        }
+        
         stage('Test') {
-        agent {
-                label 'master'
-        }
             steps {
-                sh 'mvn test'
+                // Run tests
+                sh './gradlew test'
             }
         }
-        stage('Package') {
-        agent {
-                label 'master'
-        }
-            steps {
-                sh 'mvn package'
-                archiveArtifacts artifacts: '**/*.jar', fingerprint: true
-            }
-        }
+        
         stage('Deploy') {
-        agent {
-                label 'ec2_slave1'
-        }
             steps {
-                 sshagent(['C:\Users\sairaj.m.bhoi\OneDrive - InTimeTec Visionsoft Pvt. Ltd.,\Desktop\jenkins\key-pair-jenkins.pem']) {
-                 sh 'ssh ubuntu@3.111.169.43 "sudo systemctl stop my-app"'
-                 sh 'scp target/*.jar ubuntu@:/home/ubuntu/my-app'
-                 sh 'ssh ubuntu@3.111.169.43 "sudo systemctl start my-app"'
-                }
+                // Deploy the application
+                sh 'docker-compose up -d'
             }
-        }
-        stage('Cleanup') {
-        agent {
-                label 'master'
-        }
-            steps {
-                sh 'mvn clean'
-            }
-        }
-    }
-     post {
-        failure {
-            mail to: 'sairaj.m.bhoi@intimetec.com', subject: 'Build failed', body: 'The build failed. Please check the logs for more details.'
         }
     }
 }
